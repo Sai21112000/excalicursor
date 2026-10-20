@@ -1,0 +1,33 @@
+{
+  "name": "excalicursor",
+  "version": "1.0.0",
+  "description": "Native macOS screen-annotation & Excalidraw overlay utility",
+  "os": [
+    "darwin"
+  ],
+  "bin": {
+    "excalicursor": "./bin/excalicursor.js"
+  },
+  "scripts": {
+    "build": "make app",
+    "dmg": "make dmg",
+    "install-app": "make install",
+    "postinstall": "node ./bin/excalicursor.js --postinstall"
+  },
+  "files": [
+    "bin/",
+    "Sources/",
+    "Package.swift",
+    "Info.plist",
+    "Makefile",
+    "build/ExcaliCursor.app"
+  ],
+  "keywords": [
+    "macos",
+    "excalidraw",
+    "screen-annotation",
+    "laser-pointer",
+    "overlay"
+  ],
+  "license": "MIT"
+}

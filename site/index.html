@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ExcaliCursor — Sketch over any window</title>
+  <meta name="description" content="ExcaliCursor is a macOS menu bar app that draws Excalidraw sketch strokes on top of your screen, then lets the app underneath keep focus.">
+  <link rel="icon" href="favicon.svg">
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("theme");
+        var theme = stored === "light" || stored === "dark"
+          ? stored
+          : (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#content">
+        <svg class="brand-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="currentColor"/>
+          <path d="M8 18c2-4 4-4 6-1s3 4 5 1 4-5 6-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        ExcaliCursor
+      </a>
+      <nav class="nav" aria-label="Page">
+        <a href="#features">Features</a>
+        <a href="#shortcuts">Shortcuts</a>
+        <a href="#install">Install</a>
+      </nav>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false" aria-label="Use dark theme">
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 14.5A8 8 0 1 1 9.5 4 6.5 6.5 0 0 0 20 14.5z"/>
+        </svg>
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3.5"/>
+          <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="content" tabindex="-1">
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-copy">
+          <p class="eyebrow">Menu bar for macOS</p>
+          <h1 class="rise">Sketch over any window.</h1>
+          <p class="lede rise rise-2">ExcaliCursor draws on top of the screen with Excalidraw’s sketch strokes. Press a hotkey, mark up the window you are in, and leave that app in focus.</p>
+          <div class="actions rise rise-3">
+            <a class="button button-primary" href="#install">
+              Install ExcaliCursor
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M13 6l6 6-6 6"/>
+              </svg>
+            </a>
+            <a class="button button-secondary" href="#shortcuts">Browse shortcuts</a>
+          </div>
+          <ul class="proof">
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 4l5 16 2.2-6.3L19 11z"/>
+              </svg>
+              Clicks pass through
+            </li>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M4 16c2-1 3-4 4-4s2 3 4 3 3-6 5-6 2 2 3 3"/>
+                <circle cx="18" cy="7" r="1.2" fill="currentColor" stroke="none"/>
+              </svg>
+              Laser pointer
+            </li>
+            <li>
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="8" y="8" width="11" height="11" rx="2"/>
+                <path d="M5 15V6a1 1 0 0 1 1-1h9"/>
+              </svg>
+              Copy a transparent PNG
+            </li>
+          </ul>
+        </div>
+
+        <figure class="stage-figure">
+          <div class="stage" dir="ltr" aria-hidden="true">
+            <div class="menu-bar">
+              <strong>Review</strong>
+              <span>File</span>
+              <span>Edit</span>
+              <span class="menu-status">
+                <span class="menu-dot"></span>
+                <kbd>⌘⇧D</kbd>
+              </span>
+            </div>
+            <div class="dock">
+              <span class="grip" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+              <span class="tool">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4l5 16 2-6 6-2z"/></svg>
+              </span>
+              <span class="tool tool-active">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="6" width="14" height="12" rx="1"/></svg>
+              </span>
+              <span class="tool">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4l8 8-8 8-8-8z"/></svg>
+              </span>
+              <span class="tool">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 16c8-1 10-8 12-12"/><path d="M14 5l4-1-1 4"/></svg>
+              </span>
+              <span class="tool">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 16c2-4 3-6 5-6 2 2 3 3 5 2 2-1 3-3 4-5"/></svg>
+              </span>
+              <span class="tool">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 18l2-8 8-2-2 4-4 2z"/></svg>
+              </span>
+            </div>
+            <div class="window">
+              <div class="window-chrome">
+                <span class="traffic" aria-hidden="true"><span></span><span></span><span></span></span>
+                review.swift
+              </div>
+              <div class="code">func claim() {
+    lock.lock()
+    balance += 1
+    lock.unlock()
+}</div>
+              <svg class="sketch" viewBox="0 0 640 150" preserveAspectRatio="none">
+                <path d="M78 62c40-3 150-6 168 2c8 18 6 28-2 34c-48 8-150 10-176 2c-10-12-6-30 10-38z"/>
+                <path d="M250 78c28-2 46 8 52 22c4 12-2 16-14 14"/>
+                <path d="M300 112l8-10 8 6"/>
+              </svg>
+              <p class="note">not atomic</p>
+            </div>
+          </div>
+          <figcaption>Drawing mode over a code editor. The toolbar sits on the window, and the sketch stays put when you go back to the app.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="features" aria-labelledby="features-title">
+      <div class="wrap">
+        <h2 id="features-title">Draw on the window you already have</h2>
+        <p class="section-intro">The overlay stays out of the way until a hotkey wakes it. Your marks remain until you hide or clear them.</p>
+        <ul class="features">
+          <li class="card">
+            <span class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                <path d="M8 15V9l4 3-4 3z"/>
+              </svg>
+            </span>
+            <h3>On-demand hotkey</h3>
+            <p>It stays quiet until you press a hotkey, such as <kbd>⌘⇧D</kbd>, <kbd>⌘D</kbd>, or a double-tap of <kbd>⌥</kbd>.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 5h10v8H4z"/>
+                <path d="M14 12l6 7"/>
+                <path d="M8 20h8"/>
+              </svg>
+            </span>
+            <h3>Clicks pass through</h3>
+            <p>When drawing is off, the overlay ignores the pointer. Clicks, scrolls and keystrokes go to the app underneath.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <rect x="3" y="8" width="18" height="8" rx="3"/>
+                <path d="M7 11v2M10 11v2M12 4v3M12 17v3"/>
+              </svg>
+            </span>
+            <h3>The dock follows the edge</h3>
+            <p>Drag the toolbar by its grip. Near a side it turns vertical. Near the top or bottom it turns horizontal. Double-click the grip to snap back to the top center.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M4 16c3-1 4-5 6-5s2 4 4 4 4-7 6-7"/>
+                <circle cx="18" cy="6" r="1.4" fill="currentColor" stroke="none"/>
+              </svg>
+            </span>
+            <h3>Laser pointer</h3>
+            <p>A crimson trail with a soft cursor glow, for screen shares, code walkthroughs and presentations. Press <kbd>K</kbd>.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M4 16c2-5 4-6 6-3s3 6 6 3 4-6 5-4"/>
+                <circle cx="18" cy="7" r="2.5"/>
+              </svg>
+            </span>
+            <h3>Stroke, sloppiness and theme</h3>
+            <p>Pick a stroke color and a width: Thin, Bold or Extra. Rough.js sloppiness runs from Architect to Artist to Cartoon. Fill with hachure, and switch the toolbar between dark and light.</p>
+          </li>
+          <li class="card">
+            <span class="card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="8" y="8" width="12" height="12" rx="2"/>
+                <path d="M4 15V5a1 1 0 0 1 1-1h10"/>
+              </svg>
+            </span>
+            <h3>Copy a PNG</h3>
+            <p>Press <kbd>⌘C</kbd> to put a transparent PNG on the clipboard. Launch at login uses SMAppService. If registration fails, the toggle reverts and Settings shows the error.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="shortcuts" aria-labelledby="shortcuts-title">
+      <div class="wrap">
+        <h2 id="shortcuts-title">Drawing shortcuts</h2>
+        <p class="section-intro">These keys work while drawing mode is on. Select a key to read what it does.</p>
+        <p class="hint">Arrow keys move between shortcuts.</p>
+        <fieldset class="board">
+          <legend class="visually-hidden">Drawing shortcuts</legend>
+          <div class="board-layout">
+            <div class="keys">
+              <div class="key-group">
+                <p class="visually-hidden">Tools</p>
+                <label class="key"><input type="radio" name="shortcut" value="v"><span aria-hidden="true">V</span><span class="visually-hidden">V. Selection. Select, move, restyle or delete shapes. 1 does the same.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="h"><span aria-hidden="true">H</span><span class="visually-hidden">H. Hand. Pan the canvas.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="r"><span aria-hidden="true">R</span><span class="visually-hidden">R. Rectangle. Sketch a rectangle. 2 does the same.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="d"><span aria-hidden="true">D</span><span class="visually-hidden">D. Diamond. Sketch a diamond. 3 does the same.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="o"><span aria-hidden="true">O</span><span class="visually-hidden">O. Ellipse. Sketch an ellipse. 4 does the same.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="a"><span aria-hidden="true">A</span><span class="visually-hidden">A. Arrow. Sketch an arrow. 5 does the same.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="l"><span aria-hidden="true">L</span><span class="visually-hidden">L. Line. Sketch a line. 6 does the same.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="p"><span aria-hidden="true">P</span><span class="visually-hidden">P. Draw. Freehand pen. 7 does the same.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="t"><span aria-hidden="true">T</span><span class="visually-hidden">T. Text. Place a text annotation. 8 does the same.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="e"><span aria-hidden="true">E</span><span class="visually-hidden">E. Eraser. Erase a shape under the pointer. 0 does the same.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="k" checked><span aria-hidden="true">K</span><span class="visually-hidden">K. Laser pointer. A crimson trail with a soft cursor glow, for screen shares, code walkthroughs and presentations.</span></label>
+              </div>
+              <div class="key-group">
+                <p class="visually-hidden">Commands</p>
+                <label class="key"><input type="radio" name="shortcut" value="q"><span aria-hidden="true">Q</span><span class="visually-hidden">Q. Lock tool. Keep the selected tool active after a stroke.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="shift-x"><span aria-hidden="true">⇧X</span><span class="visually-hidden">Shift X. Draw to shape. Recognizes rectangles, diamonds, ellipses and lines.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="b"><span aria-hidden="true">B</span><span class="visually-hidden">B. Bucket fill. Fills a shape with Rough.js hachure.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="c"><span aria-hidden="true">C</span><span class="visually-hidden">C. Clear. Clears every drawing on the canvas. Delete removes the current selection when one exists.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="undo"><span aria-hidden="true">⌘Z</span><span class="visually-hidden">Command Z. Undo the last stroke.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="redo"><span aria-hidden="true">⌘⇧Z</span><span class="visually-hidden">Command Shift Z. Redo a stroke.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="copy"><span aria-hidden="true">⌘C</span><span class="visually-hidden">Command C. Copy the canvas to the clipboard as a PNG.</span></label>
+                <label class="key"><input type="radio" name="shortcut" value="esc"><span aria-hidden="true">Esc</span><span class="visually-hidden">Escape. Leave drawing mode and return to click-through. Closes an open popover, or clears the selection, before exiting.</span></label>
+              </div>
+            </div>
+            <div class="details">
+              <article class="detail" data-for="v" aria-hidden="true"><h3>Selection</h3><p>Select, move, restyle or delete shapes. <kbd>1</kbd> does the same.</p></article>
+              <article class="detail" data-for="h" aria-hidden="true"><h3>Hand</h3><p>Pan the canvas.</p></article>
+              <article class="detail" data-for="r" aria-hidden="true"><h3>Rectangle</h3><p>Sketch a rectangle. <kbd>2</kbd> does the same.</p></article>
+              <article class="detail" data-for="d" aria-hidden="true"><h3>Diamond</h3><p>Sketch a diamond. <kbd>3</kbd> does the same.</p></article>
+              <article class="detail" data-for="o" aria-hidden="true"><h3>Ellipse</h3><p>Sketch an ellipse. <kbd>4</kbd> does the same.</p></article>
+              <article class="detail" data-for="a" aria-hidden="true"><h3>Arrow</h3><p>Sketch an arrow. <kbd>5</kbd> does the same.</p></article>
+              <article class="detail" data-for="l" aria-hidden="true"><h3>Line</h3><p>Sketch a line. <kbd>6</kbd> does the same.</p></article>
+              <article class="detail" data-for="p" aria-hidden="true"><h3>Draw</h3><p>Freehand pen. <kbd>7</kbd> does the same.</p></article>
+              <article class="detail" data-for="t" aria-hidden="true"><h3>Text</h3><p>Place a text annotation. <kbd>8</kbd> does the same.</p></article>
+              <article class="detail" data-for="e" aria-hidden="true"><h3>Eraser</h3><p>Erase a shape under the pointer. <kbd>0</kbd> does the same.</p></article>
+              <article class="detail" data-for="k" aria-hidden="true"><h3>Laser pointer</h3><p>A crimson trail with a soft cursor glow, for screen shares, code walkthroughs and presentations.</p></article>
+              <article class="detail" data-for="q" aria-hidden="true"><h3>Lock tool</h3><p>Keep the selected tool active after a stroke.</p></article>
+              <article class="detail" data-for="shift-x" aria-hidden="true"><h3>Draw to shape</h3><p>Recognizes rectangles, diamonds, ellipses and lines.</p></article>
+              <article class="detail" data-for="b" aria-hidden="true"><h3>Bucket fill</h3><p>Fills a shape with Rough.js hachure.</p></article>
+              <article class="detail" data-for="c" aria-hidden="true"><h3>Clear</h3><p>Clears every drawing on the canvas. <kbd>Delete</kbd> removes the current selection when one exists.</p></article>
+              <article class="detail" data-for="undo" aria-hidden="true"><h3>Undo</h3><p>Undo the last stroke.</p></article>
+              <article class="detail" data-for="redo" aria-hidden="true"><h3>Redo</h3><p>Redo a stroke.</p></article>
+              <article class="detail" data-for="copy" aria-hidden="true"><h3>Copy PNG</h3><p>Copy the canvas to the clipboard as a PNG.</p></article>
+              <article class="detail" data-for="esc" aria-hidden="true"><h3>Exit</h3><p>Leave drawing mode and return to click-through. Closes an open popover, or clears the selection, before exiting.</p></article>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </section>
+
+    <section class="section" id="install" aria-labelledby="install-title">
+      <div class="wrap">
+        <h2 id="install-title">Install</h2>
+        <p class="section-intro">You need macOS 13 or later, and Swift 5.9 or the Xcode Command Line Tools.</p>
+        <ol class="steps">
+          <li>
+            <span class="step-num" aria-hidden="true">1</span>
+            <h3>Build the app</h3>
+            <p>Compiles ExcaliCursor.app.</p>
+            <pre dir="ltr"><code>make app</code></pre>
+          </li>
+          <li>
+            <span class="step-num" aria-hidden="true">2</span>
+            <h3>Launch ExcaliCursor</h3>
+            <p>The sketch icon appears in the menu bar.</p>
+            <pre dir="ltr"><code>make run</code></pre>
+          </li>
+          <li>
+            <span class="step-num" aria-hidden="true">3</span>
+            <h3>Build a disk image</h3>
+            <p>Writes <code>build/ExcaliCursor.dmg</code>, with a shortcut to /Applications.</p>
+            <pre dir="ltr"><code>make dmg</code></pre>
+          </li>
+        </ol>
+
+        <div class="activate">
+          <h3>Turn it on</h3>
+          <p>The default hotkey is <kbd>⌘⇧D</kbd>. Settings also offers <kbd>⌘D</kbd> and <kbd>⌥D</kbd>, or a double-tap of <kbd>⌥</kbd>. The menu bar icon shows the shortcut you saved.</p>
+          <details>
+            <summary>
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 6l6 6-6 6"/>
+              </svg>
+              Double-tap ⌥ and Accessibility
+            </summary>
+            <p>The keyboard shortcut works without extra permission. Double-tap <kbd>⌥</kbd> needs ExcaliCursor allowed in Accessibility settings. If that monitor is unavailable, Settings shows a way to open them. <a href="x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility">Open Accessibility Settings</a>.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>ExcaliCursor. A menu bar overlay for macOS.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById("theme-toggle");
+      var root = document.documentElement;
+
+      function stored() {
+        try { return localStorage.getItem("theme"); } catch (e) { return null; }
+      }
+
+      function persist(theme) {
+        try { localStorage.setItem("theme", theme); } catch (e) {}
+      }
+
+      function paint(theme) {
+        var style = document.createElement("style");
+        style.appendChild(document.createTextNode("*,*::before,*::after{transition:none !important}"));
+        document.head.appendChild(style);
+        root.setAttribute("data-theme", theme);
+        void document.body.offsetHeight;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { style.remove(); });
+        });
+        var dark = theme === "dark";
+        toggle.setAttribute("aria-label", dark ? "Use light theme" : "Use dark theme");
+        toggle.setAttribute("aria-pressed", dark ? "true" : "false");
+      }
+
+      paint(root.getAttribute("data-theme") || "light");
+
+      toggle.addEventListener("click", function () {
+        var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        paint(next);
+        persist(next);
+      });
+
+      matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (event) {
+        if (stored()) return;
+        paint(event.matches ? "dark" : "light");
+      });
+    })();
+  </script>
+</body>
+</html>

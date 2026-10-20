@@ -1,0 +1,6 @@
+.DS_Store
+.build/
+build/
+node_modules/
+*.tgz
+.cursor/
